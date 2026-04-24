@@ -49,6 +49,10 @@ export default Owl.wrapHandler(async (req, res) => {
 });
 ```
 
+## Example
+
+A runnable demo server lives at [`Examples/Demo/`](./Examples/Demo/). It exercises the full SDK surface (operations, feedback, user properties, `wrapHandler`) and is the backend the iOS SDK demo calls from its "Backend Demo" screen, so cross-SDK session correlation shows up in one place in the dashboard.
+
 ## Links
 
 - [Website](https://owlmetry.com)
