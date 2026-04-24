@@ -1,7 +1,7 @@
 export type OwlLogLevel = "info" | "debug" | "warn" | "error";
 
 export interface OwlConfiguration {
-  /** OwlMetry server endpoint URL */
+  /** Owlmetry server endpoint URL */
   endpoint: string;
   /** Client API key for a server-platform app (must start with owl_client_) */
   apiKey: string;

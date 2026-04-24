@@ -74,7 +74,7 @@ export class Transport {
 
   private logError(message: string, err: unknown): void {
     if (this.config.debug) {
-      console.error(`OwlMetry: ${message}`, err);
+      console.error(`Owlmetry: ${message}`, err);
     }
   }
 
@@ -98,7 +98,7 @@ export class Transport {
         if (res.status >= 400 && res.status < 500 && res.status !== 429) {
           if (this.config.debug) {
             const text = await res.text().catch(() => "");
-            console.error(`OwlMetry: setUserProperties failed with ${res.status}: ${text}`);
+            console.error(`Owlmetry: setUserProperties failed with ${res.status}: ${text}`);
           }
           return;
         }
@@ -109,7 +109,7 @@ export class Transport {
         }
       } catch (err) {
         if (this.config.debug) {
-          console.error("OwlMetry: network error during setUserProperties", err);
+          console.error("Owlmetry: network error during setUserProperties", err);
         }
         if (attempt < MAX_RETRIES) {
           const backoff = Math.min(Math.pow(2, attempt) * 1000, MAX_BACKOFF_MS);
@@ -119,7 +119,7 @@ export class Transport {
     }
 
     if (this.config.debug) {
-      console.error(`OwlMetry: setUserProperties failed after ${MAX_RETRIES + 1} attempts`);
+      console.error(`Owlmetry: setUserProperties failed after ${MAX_RETRIES + 1} attempts`);
     }
   }
 
@@ -155,20 +155,20 @@ export class Transport {
         if (res.status >= 400 && res.status < 500 && res.status !== 429) {
           const serverMessage = extractServerError(text) ?? text;
           throw new Error(
-            `OwlMetry: sendFeedback rejected (${res.status})${serverMessage ? `: ${serverMessage}` : ""}`,
+            `Owlmetry: sendFeedback rejected (${res.status})${serverMessage ? `: ${serverMessage}` : ""}`,
           );
         }
 
         lastError = new Error(
-          `OwlMetry: sendFeedback failed with ${res.status}${text ? `: ${text}` : ""}`,
+          `Owlmetry: sendFeedback failed with ${res.status}${text ? `: ${text}` : ""}`,
         );
       } catch (err) {
-        if (err instanceof Error && err.message.startsWith("OwlMetry: sendFeedback rejected")) {
+        if (err instanceof Error && err.message.startsWith("Owlmetry: sendFeedback rejected")) {
           throw err;
         }
         lastError = err instanceof Error ? err : new Error(String(err));
         if (this.config.debug) {
-          console.error("OwlMetry: network error during sendFeedback", err);
+          console.error("Owlmetry: network error during sendFeedback", err);
         }
       }
 
@@ -178,7 +178,7 @@ export class Transport {
       }
     }
 
-    throw lastError ?? new Error("OwlMetry: sendFeedback failed after retries");
+    throw lastError ?? new Error("Owlmetry: sendFeedback failed after retries");
   }
 
   private async sendBatch(events: LogEvent[]): Promise<void> {
@@ -219,7 +219,7 @@ export class Transport {
           if (res.status >= 400 && res.status < 500 && res.status !== 429) {
             if (this.config.debug) {
               const text = await res.text().catch(() => "");
-              console.error(`OwlMetry: ingest failed with ${res.status}: ${text}`);
+              console.error(`Owlmetry: ingest failed with ${res.status}: ${text}`);
             }
             return;
           }
@@ -231,7 +231,7 @@ export class Transport {
           }
         } catch (err) {
           if (this.config.debug) {
-            console.error("OwlMetry: network error during ingest", err);
+            console.error("Owlmetry: network error during ingest", err);
           }
           if (attempt < MAX_RETRIES) {
             const backoff = Math.min(Math.pow(2, attempt) * 1000, MAX_BACKOFF_MS);
@@ -241,11 +241,11 @@ export class Transport {
       }
 
       if (this.config.debug) {
-        console.error(`OwlMetry: failed to send batch after ${MAX_RETRIES + 1} attempts, dropping ${events.length} events`);
+        console.error(`Owlmetry: failed to send batch after ${MAX_RETRIES + 1} attempts, dropping ${events.length} events`);
       }
     } catch (err) {
       if (this.config.debug) {
-        console.error("OwlMetry: failed to prepare batch for sending", err);
+        console.error("Owlmetry: failed to prepare batch for sending", err);
       }
     }
   }

@@ -17,7 +17,7 @@ export interface ValidatedConfig {
 
 export function validateConfiguration(config: OwlConfiguration): ValidatedConfig {
   if (!config.endpoint || typeof config.endpoint !== "string") {
-    throw new Error("OwlMetry: endpoint is required");
+    throw new Error("Owlmetry: endpoint is required");
   }
 
   let endpoint = config.endpoint;
@@ -29,15 +29,15 @@ export function validateConfiguration(config: OwlConfiguration): ValidatedConfig
   try {
     new URL(endpoint);
   } catch {
-    throw new Error(`OwlMetry: invalid endpoint URL: ${endpoint}`);
+    throw new Error(`Owlmetry: invalid endpoint URL: ${endpoint}`);
   }
 
   if (!config.apiKey || typeof config.apiKey !== "string") {
-    throw new Error("OwlMetry: apiKey is required");
+    throw new Error("Owlmetry: apiKey is required");
   }
 
   if (!config.apiKey.startsWith(CLIENT_KEY_PREFIX)) {
-    throw new Error(`OwlMetry: apiKey must start with "${CLIENT_KEY_PREFIX}"`);
+    throw new Error(`Owlmetry: apiKey must start with "${CLIENT_KEY_PREFIX}"`);
   }
 
   return {

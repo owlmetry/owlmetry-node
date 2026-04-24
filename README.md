@@ -1,6 +1,6 @@
 # @owlmetry/node
 
-Node.js SDK for [OwlMetry](https://owlmetry.com) — self-hosted metrics tracking for mobile and backend apps.
+Node.js SDK for [Owlmetry](https://owlmetry.com) — self-hosted metrics tracking for mobile and backend apps.
 
 Zero runtime dependencies. Works with any Node.js framework.
 

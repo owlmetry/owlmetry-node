@@ -37,7 +37,7 @@ export interface SendFeedbackOptions {
   sessionId?: string;
   /**
    * Bundle ID — only needed when forwarding feedback on behalf of a mobile
-   * frontend whose OwlMetry app has a bundle_id set. Backend apps have no
+   * frontend whose Owlmetry app has a bundle_id set. Backend apps have no
    * bundle_id so this can be omitted.
    */
   bundleId?: string;
@@ -68,7 +68,7 @@ function validateSessionId(sessionId: string): string | undefined {
   if (!UUID_REGEX.test(sessionId)) {
     if (config?.debug) {
       console.error(
-        `OwlMetry: sessionId "${sessionId}" is not a valid UUID and was ignored. Falling back to the default session ID. The server stores session_id as a UUID column — non-UUID values cannot be ingested. The Swift SDK's Owl.sessionId is already a UUID, so forward it verbatim.`,
+        `Owlmetry: sessionId "${sessionId}" is not a valid UUID and was ignored. Falling back to the default session ID. The server stores session_id as a UUID column — non-UUID values cannot be ingested. The Swift SDK's Owl.sessionId is already a UUID, so forward it verbatim.`,
       );
     }
     return undefined;
@@ -103,7 +103,7 @@ function saveExperiments(): void {
     writeFileSync(EXPERIMENTS_FILE, JSON.stringify(experiments, null, 2), "utf-8");
   } catch (err) {
     if (config?.debug) {
-      console.error("OwlMetry: failed to save experiments:", err);
+      console.error("Owlmetry: failed to save experiments:", err);
     }
   }
 }
@@ -121,7 +121,7 @@ function normalizeSlug(slug: string): string {
     .replace(/^-+|-+$/g, "");
   if (config?.debug) {
     console.error(
-      `OwlMetry: metric slug "${slug}" was auto-corrected to "${normalized}". Slugs should contain only lowercase letters, numbers, and hyphens.`,
+      `Owlmetry: metric slug "${slug}" was auto-corrected to "${normalized}". Slugs should contain only lowercase letters, numbers, and hyphens.`,
     );
   }
   return normalized;
@@ -172,7 +172,7 @@ let beforeExitRegistered = false;
 
 function ensureConfigured(): { config: ValidatedConfig; transport: Transport; sessionId: string } {
   if (!config || !transport || !sessionId) {
-    throw new Error("OwlMetry: not configured. Call Owl.configure() first.");
+    throw new Error("Owlmetry: not configured. Call Owl.configure() first.");
   }
   return { config, transport, sessionId };
 }
@@ -226,7 +226,7 @@ function printToConsole(level: OwlLogLevel, message: string, attrs?: Record<stri
     displayMessage = message;
   }
 
-  let line = `🦉 OwlMetry ${tag} ${displayMessage}`;
+  let line = `🦉 Owlmetry ${tag} ${displayMessage}`;
   if (attrs && Object.keys(attrs).length > 0) {
     const pairs = Object.entries(attrs)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -264,11 +264,11 @@ async function sendFeedbackInternal(
 
   const trimmedMessage = typeof message === "string" ? message.trim() : "";
   if (!trimmedMessage) {
-    throw new Error("OwlMetry: feedback message is required");
+    throw new Error("Owlmetry: feedback message is required");
   }
   if (trimmedMessage.length > MAX_FEEDBACK_MESSAGE_LENGTH) {
     throw new Error(
-      `OwlMetry: feedback message must be at most ${MAX_FEEDBACK_MESSAGE_LENGTH} characters`,
+      `Owlmetry: feedback message must be at most ${MAX_FEEDBACK_MESSAGE_LENGTH} characters`,
     );
   }
 
@@ -335,7 +335,7 @@ function log(
     }
   } catch (err) {
     if (config?.debug) {
-      console.error("OwlMetry:", err);
+      console.error("Owlmetry:", err);
     }
   }
 }
@@ -412,7 +412,7 @@ export class ScopedOwl {
    */
   setUserProperties(properties: Record<string, string>): void {
     if (!this.userId) {
-      throw new Error("OwlMetry: setUserProperties requires a user-scoped instance. Call .withUser() first.");
+      throw new Error("Owlmetry: setUserProperties requires a user-scoped instance. Call .withUser() first.");
     }
     Owl.setUserProperties(this.userId, properties);
   }
@@ -436,7 +436,7 @@ export class ScopedOwl {
   }
 
   /**
-   * Forward user feedback collected from your frontend to OwlMetry. Defaults
+   * Forward user feedback collected from your frontend to Owlmetry. Defaults
    * `user_id` and `session_id` to the scope's values (override via `options`).
    *
    * Throws on failure — wrap calls in try/catch. Empty messages reject
@@ -449,7 +449,7 @@ export class ScopedOwl {
 }
 
 /**
- * OwlMetry Node.js Server SDK.
+ * Owlmetry Node.js Server SDK.
  *
  * Usage:
  * ```
@@ -534,10 +534,10 @@ export const Owl = {
     try {
       const ctx = ensureConfigured();
       ctx.transport.setUserProperties(userId, properties).catch((err) => {
-        if (config?.debug) console.error("OwlMetry: setUserProperties failed", err);
+        if (config?.debug) console.error("Owlmetry: setUserProperties failed", err);
       });
     } catch (err) {
-      if (config?.debug) console.error("OwlMetry:", err);
+      if (config?.debug) console.error("Owlmetry:", err);
     }
   },
 
@@ -552,7 +552,7 @@ export const Owl = {
     }
     if (options.length === 0) {
       if (config?.debug) {
-        console.error(`OwlMetry: getVariant("${name}") called with empty options array`);
+        console.error(`Owlmetry: getVariant("${name}") called with empty options array`);
       }
       return "";
     }
@@ -620,11 +620,11 @@ export const Owl = {
   },
 
   /**
-   * Forward user feedback collected from your frontend to OwlMetry.
+   * Forward user feedback collected from your frontend to Owlmetry.
    *
    * Use this when your own frontend (web form, chat widget, support page)
    * sends feedback to your Node server and you want it captured in the
-   * OwlMetry feedback tracker.
+   * Owlmetry feedback tracker.
    *
    * Throws on failure — wrap calls in try/catch. Empty messages reject
    * synchronously; server-side 4xx responses surface as thrown errors with
