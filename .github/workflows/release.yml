@@ -1,5 +1,8 @@
 name: Auto-tag release
 
+# Triggered by pushes to main. paths-ignore skips Examples/docs/gitignore-only
+# pushes — note this also skips pushes that change zero paths (empty commits).
+# The bot's bump commit uses [skip ci] so this workflow doesn't loop on itself.
 on:
   push:
     branches: [main]
