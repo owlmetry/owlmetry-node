@@ -1,0 +1,107 @@
+name: Auto-tag release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'Examples/**'
+      - '**.md'
+      - '.gitignore'
+
+concurrency:
+  group: auto-tag
+  cancel-in-progress: false
+
+jobs:
+  wait-for-tests:
+    name: Wait for Test workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for unit + integration
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.sha }}
+          check-regexp: "(Unit tests|Integration tests)"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 20
+          allowed-conclusions: success
+
+  tag-and-publish:
+    name: Bump, tag, publish
+    needs: wait-for-tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Compute next version
+        id: ver
+        run: |
+          latest=$(git tag -l 'v*' --sort=-v:refname | head -n1)
+          if [[ -z "$latest" ]]; then
+            # No v* tags yet — seed from package.json so we don't collide
+            # with versions already published to npm.
+            current=$(node -p "require('./package.json').version")
+          else
+            current=${latest#v}
+          fi
+          IFS='.' read -r MAJ MIN PAT <<< "$current"
+
+          msg=$(git log -1 --pretty=%s ${{ github.sha }})
+          # feat!:/fix!:/BREAKING CHANGE → major; feat:/feat(...) → minor; else patch.
+          if [[ "$msg" == *"!:"* || "$msg" == *"BREAKING CHANGE"* ]]; then
+            MAJ=$((MAJ+1)); MIN=0; PAT=0
+          elif [[ "$msg" == feat:* || "$msg" == feat\(* ]]; then
+            MIN=$((MIN+1)); PAT=0
+          else
+            PAT=$((PAT+1))
+          fi
+
+          version="${MAJ}.${MIN}.${PAT}"
+          next="v${version}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+          echo "Next version: $next (from '$msg')"
+
+      - name: Bump package.json
+        run: npm version "${{ steps.ver.outputs.version }}" --no-git-tag-version --allow-same-version
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit, tag, push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "chore: release ${{ steps.ver.outputs.next }} [skip ci]"
+          git tag "${{ steps.ver.outputs.next }}"
+          git push origin main
+          git push origin "${{ steps.ver.outputs.next }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.ver.outputs.next }}" \
+            --title "${{ steps.ver.outputs.next }}" \
+            --generate-notes
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
