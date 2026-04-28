@@ -26,6 +26,8 @@ function makeEvent(overrides?: Partial<LogEvent>): LogEvent {
     level: "info",
     message: "test event",
     environment: "backend",
+    sdk_name: "owlmetry-node",
+    sdk_version: "0.0.0-test",
     timestamp: new Date().toISOString(),
     ...overrides,
   };

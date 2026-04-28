@@ -153,6 +153,21 @@ describe("Owl", () => {
     assert.equal(body.events[0].app_version, "1.2.3");
   });
 
+  it("stamps every event with sdk_name and sdk_version", async () => {
+    Owl.configure({
+      endpoint: "http://localhost:4000",
+      apiKey: "owl_client_test_1234567890123456789012345678",
+      flushThreshold: 100,
+    });
+
+    Owl.info("test");
+    await Owl.flush();
+
+    const body = parseBody(getCalls()[0].init);
+    assert.equal(body.events[0].sdk_name, "owlmetry-node");
+    assert.match(body.events[0].sdk_version, /^\d+\.\d+\.\d+/);
+  });
+
   it("does not include bundle_id in request body", async () => {
     Owl.configure({
       endpoint: "http://localhost:4000",

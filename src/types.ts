@@ -1,3 +1,9 @@
+declare const __SDK_VERSION__: string;
+
+export const SDK_NAME = "owlmetry-node" as const;
+export const SDK_VERSION: string =
+  typeof __SDK_VERSION__ !== "undefined" ? __SDK_VERSION__ : "0.0.0";
+
 export type OwlLogLevel = "info" | "debug" | "warn" | "error";
 
 export interface OwlConfiguration {
@@ -34,6 +40,8 @@ export interface LogEvent {
   experiments?: Record<string, string>;
   environment: "backend";
   app_version?: string;
+  sdk_name: string;
+  sdk_version: string;
   is_dev?: boolean;
   timestamp: string;
 }
@@ -60,6 +68,8 @@ export interface FeedbackSubmission {
   submitter_name?: string | null;
   submitter_email?: string | null;
   app_version?: string;
+  sdk_name?: string;
+  sdk_version?: string;
   environment?: string;
   device_model?: string;
   os_version?: string;

@@ -4,12 +4,14 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { validateConfiguration, type ValidatedConfig } from "./configuration.js";
 import { Transport } from "./transport.js";
-import type {
-  OwlConfiguration,
-  OwlLogLevel,
-  LogEvent,
-  FeedbackSubmission,
-  FeedbackReceipt,
+import {
+  SDK_NAME,
+  SDK_VERSION,
+  type OwlConfiguration,
+  type OwlLogLevel,
+  type LogEvent,
+  type FeedbackSubmission,
+  type FeedbackReceipt,
 } from "./types.js";
 import { OwlOperation } from "./operation.js";
 import { AttachmentUploader, type OwlAttachment } from "./attachment-uploader.js";
@@ -196,6 +198,8 @@ function createEvent(
     ...(Object.keys(experiments).length > 0 ? { experiments: { ...experiments } } : {}),
     environment: "backend",
     ...(ctx.config.appVersion ? { app_version: ctx.config.appVersion } : {}),
+    sdk_name: SDK_NAME,
+    sdk_version: SDK_VERSION,
     is_dev: ctx.config.isDev,
     timestamp: new Date().toISOString(),
   };
@@ -282,6 +286,8 @@ async function sendFeedbackInternal(
     message: trimmedMessage,
     is_dev: options.isDev ?? cfg.isDev,
     environment: options.environment ?? "backend",
+    sdk_name: SDK_NAME,
+    sdk_version: SDK_VERSION,
   };
   if (options.bundleId) body.bundle_id = options.bundleId;
   if (submitterName) body.submitter_name = submitterName;
