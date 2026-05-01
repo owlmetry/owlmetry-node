@@ -62,8 +62,16 @@ jobs:
 
           msg=$(git log -1 --pretty=%s ${{ github.sha }})
           # feat!:/fix!:/BREAKING CHANGE → major; feat:/feat(...) → minor; else patch.
+          # Pre-1.0 semver convention: while MAJ is 0 the API is unstable, so a
+          # breaking marker bumps minor instead of jumping straight to 1.0.0.
+          # The first major release happens manually (tag v1.0.0 by hand) — this
+          # workflow only takes over once the project is past 0.x.
           if [[ "$msg" == *"!:"* || "$msg" == *"BREAKING CHANGE"* ]]; then
-            MAJ=$((MAJ+1)); MIN=0; PAT=0
+            if [[ "$MAJ" == "0" ]]; then
+              MIN=$((MIN+1)); PAT=0
+            else
+              MAJ=$((MAJ+1)); MIN=0; PAT=0
+            fi
           elif [[ "$msg" == feat:* || "$msg" == feat\(* ]]; then
             MIN=$((MIN+1)); PAT=0
           else
