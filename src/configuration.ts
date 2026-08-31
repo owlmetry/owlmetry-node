@@ -1,6 +1,7 @@
 import type { OwlConfiguration } from "./types.js";
 
 const CLIENT_KEY_PREFIX = "owl_client_";
+const MAX_HANDLER_FLUSH_TIMEOUT_MS = 2_147_483_647;
 
 export interface ValidatedConfig {
   endpoint: string;
@@ -46,10 +47,13 @@ export function validateConfiguration(config: OwlConfiguration): ValidatedConfig
     config.handlerFlushTimeoutMs !== undefined &&
     config.handlerFlushTimeoutMs !== null &&
     (typeof config.handlerFlushTimeoutMs !== "number" ||
-      !Number.isFinite(config.handlerFlushTimeoutMs) ||
-      config.handlerFlushTimeoutMs < 0)
+      !Number.isSafeInteger(config.handlerFlushTimeoutMs) ||
+      config.handlerFlushTimeoutMs < 0 ||
+      config.handlerFlushTimeoutMs > MAX_HANDLER_FLUSH_TIMEOUT_MS)
   ) {
-    throw new Error("Owlmetry: handlerFlushTimeoutMs must be a non-negative finite number or null");
+    throw new Error(
+      `Owlmetry: handlerFlushTimeoutMs must be an integer from 0 to ${MAX_HANDLER_FLUSH_TIMEOUT_MS}, or null`,
+    );
   }
 
   return {

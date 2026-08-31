@@ -24,8 +24,9 @@ export interface OwlConfiguration {
   /** Max events in buffer before dropping oldest (default: 10000) */
   maxBufferSize?: number;
   /**
-   * Maximum time in milliseconds that `wrapHandler` waits for its final flush
-   * (default: 500). Pass `null` to wait for the full flush with no deadline.
+   * Maximum time in milliseconds that `wrapHandler` waits for its final flush.
+   * Accepts integers from 0 through 2,147,483,647 (default: 500). Pass `null`
+   * to wait for the full flush with no deadline.
    */
   handlerFlushTimeoutMs?: number | null;
   /** Mark events as development builds. Defaults to `process.env.NODE_ENV !== "production"` */

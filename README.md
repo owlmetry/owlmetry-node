@@ -55,7 +55,8 @@ export default Owl.wrapHandler(async (req, res) => {
 It starts a best-effort telemetry flush after the handler settles, ignores flush
 failures, and stops waiting after `handlerFlushTimeoutMs` so telemetry cannot
 hold a product response open. The default deadline is 500 ms. Set the option to
-`null` only when the handler must wait for the complete flush with no deadline.
+an integer from 0 through 2,147,483,647, or set it to `null` only when the
+handler must wait for the complete flush with no deadline.
 
 ## Example
 
