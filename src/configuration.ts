@@ -12,6 +12,7 @@ export interface ValidatedConfig {
   flushIntervalMs: number;
   flushThreshold: number;
   maxBufferSize: number;
+  handlerFlushTimeoutMs?: number | null;
   consoleLogging: boolean;
   captureUnhandled: boolean;
 }
@@ -41,6 +42,16 @@ export function validateConfiguration(config: OwlConfiguration): ValidatedConfig
     throw new Error(`Owlmetry: apiKey must start with "${CLIENT_KEY_PREFIX}"`);
   }
 
+  if (
+    config.handlerFlushTimeoutMs !== undefined &&
+    config.handlerFlushTimeoutMs !== null &&
+    (typeof config.handlerFlushTimeoutMs !== "number" ||
+      !Number.isFinite(config.handlerFlushTimeoutMs) ||
+      config.handlerFlushTimeoutMs < 0)
+  ) {
+    throw new Error("Owlmetry: handlerFlushTimeoutMs must be a non-negative finite number or null");
+  }
+
   return {
     endpoint,
     apiKey: config.apiKey,
@@ -51,6 +62,8 @@ export function validateConfiguration(config: OwlConfiguration): ValidatedConfig
     flushIntervalMs: config.flushIntervalMs ?? 5000,
     flushThreshold: config.flushThreshold ?? 20,
     maxBufferSize: config.maxBufferSize ?? 10000,
+    handlerFlushTimeoutMs:
+      config.handlerFlushTimeoutMs === undefined ? 500 : config.handlerFlushTimeoutMs,
     consoleLogging: config.consoleLogging ?? true,
     captureUnhandled: config.captureUnhandled ?? true,
   };

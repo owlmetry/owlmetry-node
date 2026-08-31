@@ -778,7 +778,25 @@ export const Owl = {
       try {
         return await handler(...args);
       } finally {
-        await Owl.flush();
+        const flushPromise = Owl.flush().catch(() => {});
+        const timeoutMs = config?.handlerFlushTimeoutMs === undefined
+          ? 500
+          : config.handlerFlushTimeoutMs;
+        if (timeoutMs === null) {
+          await flushPromise;
+        } else {
+          await new Promise<void>((resolve) => {
+            let settled = false;
+            const finish = (): void => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timeout);
+              resolve();
+            };
+            const timeout = setTimeout(finish, timeoutMs);
+            void flushPromise.then(finish);
+          });
+        }
       }
     };
   },

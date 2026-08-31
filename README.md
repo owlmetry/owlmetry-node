@@ -26,8 +26,10 @@ const { Owl } = require("@owlmetry/node");
 
 ```js
 Owl.configure({
-  clientKey: "owl_client_...",
+  apiKey: "owl_client_...",
   endpoint: "https://ingest.owlmetry.com",
+  // wrapHandler waits at most 500 ms for its final telemetry flush.
+  handlerFlushTimeoutMs: 500,
 });
 
 // Log events
@@ -48,6 +50,12 @@ export default Owl.wrapHandler(async (req, res) => {
   res.json({ ok: true });
 });
 ```
+
+`Owl.wrapHandler` preserves the wrapped handler's return value or thrown error.
+It starts a best-effort telemetry flush after the handler settles, ignores flush
+failures, and stops waiting after `handlerFlushTimeoutMs` so telemetry cannot
+hold a product response open. The default deadline is 500 ms. Set the option to
+`null` only when the handler must wait for the complete flush with no deadline.
 
 ## Example
 
